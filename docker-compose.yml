@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: myapp_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: myapp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  sqs:
+    image: localstack/localstack
+    container_name: myapp_sqs
+    ports:
+      - "4566:4566" # LocalStack Edge Service
+    environment:
+      - SERVICES=sqs
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./script/init_sqs/init-sqs.sh:/etc/localstack/init/ready.d/init-sqs.sh
+    networks:
+      - app-network
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  app:
+    build: .
+    container_name: myapp_api
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy # Wait until db is healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./.env:/app/.env # Copies the .env file from the host to /app/.env in the container
+    environment:
+      ENV_FILE: .env # Optional: If your application needs to know where to look for the .env file
+    networks:
+      - app-network
+    entrypoint: ["./main"] # Override the CMD from Dockerfile to start the main app
+
+  worker:
+    build: .
+    container_name: myapp_worker
+    volumes:
+      - ./.env:/app/.env # Copies the .env file from the host to /app/.env in the container
+    environment:
+      ENV_FILE: .env # Optional: If your application needs to know where to look for the .env file
+    # environment:
+    #   SQS_QUEUE_URL: ${SQS_QUEUE_URL} # Set this in your environment or .env file
+    networks:
+      - app-network
+    entrypoint: ["./worker"] # Override the CMD from Dockerfile to start the worker
+    depends_on:
+      sqs:
+        condition: service_healthy
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
