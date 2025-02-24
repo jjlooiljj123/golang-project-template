@@ -151,16 +151,9 @@ type RepositoryInterface interface {
 	GetAlbumByID(ctx context.Context, id string) (entity.Album, error)
 }
 
-
-type AlbumInterface interface {
-	GetAlbumInterface
-	CreateAlbumInterface
-	GetJSONPostInterface
-}
-
 // --- In app/usecase/album/service.go ---
 type Service struct {
-	albumRepo albumsRepositories.RepositoryInterface\
+	albumRepo albumsRepositories.RepositoryInterface
 }
 
 // --- In cmd/album/main.go ---
