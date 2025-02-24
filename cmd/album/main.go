@@ -43,6 +43,8 @@ func main() {
 
 	// Initialize HTTP client
 	httpClient := httpclient.NewClient()
+
+	// Initialize third-party api service
 	jsonPostHTTPClient := jsonpost.NewHttpJsonPost(httpClient, &config.AppCfg)
 
 	// Initialize Usecase layer
@@ -51,6 +53,7 @@ func main() {
 	// Initialize Controller layer
 	restController := restcontroller.NewController(albumService)
 
+	// set up routers
 	r := gin.Default()
 	router.SetupRoutes(r, restController, &config.AppCfg)
 

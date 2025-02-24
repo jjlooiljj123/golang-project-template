@@ -10,6 +10,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var localhost string = "localhost"
+
 // go run ./script/prepare_mysql_table/prepare_mysql_table.go
 func main() {
 
@@ -24,6 +26,11 @@ func main() {
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPassword := os.Getenv("MYSQL_PASSWORD")
 	dbName := os.Getenv("MYSQL_DATABASE")
+
+	// masking the host to localhost (db is used in the .env for docker container connection in the docker compose)
+	if dbHost == "db" {
+		dbHost = localhost
+	}
 
 	// Connection string format: "username:password@tcp(host:port)/dbname"
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPassword, dbHost, dbName)

@@ -1,0 +1,6 @@
+curl --location 'http://localhost:8080/api/v1/albums' \
+--header 'Content-Type: application/json' \
+--data '{
+        "id": "A00011",
+        "title": "Album Title 11"
+    }'
