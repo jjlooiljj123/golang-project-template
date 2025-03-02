@@ -73,7 +73,7 @@ jobs:
       # Build the project
       - name: Build
         # run: go build -v ./... # build all
-        run: go build -v -o ./bin ./cmd/album
+        run: go build -v ./cmd/album
 
       # Upload the built binary as an artifact
       - name: Upload Build Artifact
