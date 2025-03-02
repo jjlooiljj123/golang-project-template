@@ -75,6 +75,10 @@ jobs:
         # run: go build -v ./... # build all
         run: go build -v ./cmd/album
 
-      # temp (it should upload the built image)
-      - name: Deploy
-        run: echo "Deploying ..."
+      # Upload the built binary as an artifact
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: album-binary
+          path: |
+            bin/album
