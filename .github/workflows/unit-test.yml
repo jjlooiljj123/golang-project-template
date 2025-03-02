@@ -1,0 +1,27 @@
+name: Go Unit Tests
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  test:
+    name: Run Unit Tests
+    # Use the latest Ubuntu runner (GitHub-hosted virtual machine)
+    runs-on: ubuntu-latest
+    # Steps to execute
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      # Step 2: Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23" # Specify your Go version here
+      # Step 3: Install dependencies (optional, if your project uses modules)
+      - name: Get Dependencies
+        run: go mod download
+      # Step 4: Run unit tests
+      - name: Run Tests
+        run: go test ./... -v
