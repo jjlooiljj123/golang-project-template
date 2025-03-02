@@ -1,9 +1,9 @@
 name: Go CI
 on:
-  - push:
-      branches:
-        - "*"
-  - workflow_dispatch:
+  push:
+    branches:
+      - "*"
+  workflow_dispatch: # Adds manual trigger option
 
 jobs:
   test:
