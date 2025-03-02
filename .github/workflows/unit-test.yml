@@ -6,6 +6,28 @@ on:
   workflow_dispatch: # Adds manual trigger option
 
 jobs:
+  lint:
+    name: Run Linting
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21" # Adjust to your Go version
+
+      # Install golangci-lint
+      - name: Install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+
+      # Run linting
+      - name: Lint
+        run: $(go env GOPATH)/bin/golangci-lint run ./... --verbose
+
   test:
     name: Run Unit Tests
     # Use the latest Ubuntu runner (GitHub-hosted virtual machine)
