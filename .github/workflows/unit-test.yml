@@ -81,4 +81,4 @@ jobs:
         with:
           name: album-binary
           path: |
-            bin/album
+            ./bin/album
