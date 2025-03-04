@@ -61,7 +61,7 @@ jobs:
         ports:
           - 3306:3306 # Maps host port to container port
         options: >- # Health check to ensure MySQL is ready
-          --health-cmd="mysqladmin ping -h localhost -u ${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}"
+          --health-cmd="mysqladmin ping -h localhost -u root -prootpass"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
