@@ -54,12 +54,12 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }} # Uses workflow-level env var
-      - name: Cache Go Modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }} # A hash of all go.sum files in the repo, ensuring the cache invalidates when dependencies change.
-          restore-keys: ${{ runner.os }}-go-
+      # - name: Cache Go Modules
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/go/pkg/mod
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }} # A hash of all go.sum files in the repo, ensuring the cache invalidates when dependencies change.
+      #     restore-keys: ${{ runner.os }}-go-
       # Step 3: Install dependencies (optional, if your project uses modules)
       - name: Get Dependencies
         run: go mod download
@@ -89,12 +89,12 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }} # Uses workflow-level env var
 
-      - name: Cache Go Modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }} # A hash of all go.sum files in the repo, ensuring the cache invalidates when dependencies change.
-          restore-keys: ${{ runner.os }}-go-
+      # - name: Cache Go Modules
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/go/pkg/mod
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }} # A hash of all go.sum files in the repo, ensuring the cache invalidates when dependencies change.
+      #     restore-keys: ${{ runner.os }}-go-
 
       # Install dependencies
       - name: Get Dependencies
