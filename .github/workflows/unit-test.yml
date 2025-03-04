@@ -44,6 +44,27 @@ jobs:
     # Job-level environment variables (available to all steps in this job)
     env:
       TEST_TIMEOUT: "5m" # Sample: Timeout for running tests
+      DB_HOST: "mysql" # Matches service name
+      DB_PORT: "3306" # Default MySQL port
+      DB_USER: "testuser" # Sample user
+      DB_PASSWORD: "testpass" # Sample password
+      DB_NAME: "testdb" # Sample database name
+    # Define the MySQL service container
+    services:
+      mysql:
+        image: mysql:8.0 # MySQL version (adjust as needed)
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass # Root password (optional)
+          MYSQL_DATABASE: testdb # Database to create
+          MYSQL_USER: testuser # Non-root user
+          MYSQL_PASSWORD: testpass # Password for non-root user
+        ports:
+          - 3306:3306 # Maps host port to container port
+        options: >- # Health check to ensure MySQL is ready
+          --health-cmd="mysqladmin ping -h localhost -u root -prootpass"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     # Steps to execute
     steps:
       # Step 1: Check out the repository code
@@ -67,6 +88,12 @@ jobs:
       - name: Run Tests
         # run: go test ./... -v
         run: go test ./... -v -timeout ${{ env.TEST_TIMEOUT }} # Uses job-level env var
+        env:
+          MYSQL_HOST: ${{ env.DB_HOST }} # Pass to test process
+          MYSQL_PORT: ${{ env.DB_PORT }}
+          MYSQL_USER: ${{ env.DB_USER }}
+          MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
+          MYSQL_DBNAME: ${{ env.DB_NAME }}
 
   build:
     name: Build Project
@@ -147,3 +174,29 @@ jobs:
       #     mv deploy/album deploy/target/
       #     echo "Deployed album to deploy/target/"
       #     ls -lh deploy/target/
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: deploy
+    # Conditional: Only run on push to main branch
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: album-binary
+          path: release/
+      - name: Create Release Tag
+        env:
+          RELEASE_VERSION: "v1.0.0" # Could be dynamic, e.g., from BUILD_VERSION
+        run: |
+          echo "Creating release for ${{ env.APP_NAME }} version ${{ env.RELEASE_VERSION }}"
+          ls -lh release/
+          # Simulate tagging (uncomment to actually tag if you have permissions)
+          # git tag ${{ env.RELEASE_VERSION }}
+          # git push origin ${{ env.RELEASE_VERSION }}
+      - name: Notify
+        run: echo "Release ${{ env.RELEASE_VERSION }} created!"
